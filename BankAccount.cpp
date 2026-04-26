@@ -2,7 +2,7 @@
 #include <iostream>
 #include <limits>
 
-// Construct/Deconstruct
+
 BankAccount::BankAccount() {
     accountNumber = "None";
     accountHolderName = "None";
@@ -32,7 +32,6 @@ BankAccount& BankAccount::operator=(const BankAccount &other) {
 
 BankAccount::~BankAccount() {}
 
-//Operator Overload
 BankAccount& BankAccount::operator+=(double amount) {
     deposit(amount);
     return *this;
@@ -55,6 +54,20 @@ bool BankAccount::operator==(const BankAccount &other) const {
     return accountNumber == other.accountNumber;
 }
 
+std::string BankAccount::getAccountNumber() const {
+    return accountNumber;
+}
+std::string BankAccount::getAccountHolderName() const {
+    return accountHolderName;
+}
+double BankAccount::getBalance() const {
+    return balance;
+}
+
+void BankAccount::setAccountHolderName(const std::string &Holder) {
+    accountHolderName = Holder;
+}
+
 void BankAccount::printAccount(const BankAccount &account) {
     std::cout << "Account number: " << account.accountNumber << std::endl;
     std::cout << "Account Holder Name: " << account.accountHolderName << std::endl;
@@ -64,6 +77,7 @@ void BankAccount::printAccount(const BankAccount &account) {
 BankAccount BankAccount::createAccountFromInput() {
     std::string accNum, Holder;
     double bal;
+
     std::cout << "Enter account Number: ";
     std::cin >> accNum;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -77,14 +91,14 @@ BankAccount BankAccount::createAccountFromInput() {
     return BankAccount(accNum, Holder, bal);
 }
 
-// Deposit and Withdraw
+
 void BankAccount::deposit(double amount) {
     if (amount > 0) {
         balance += amount;
         std::cout << "Deposited $" << amount << std::endl;
     }
     else {
-        std::cout << "Deposit amount must be greater than zero." << std::endl;
+        std::cout << "Invalid deposit amount." << std::endl;
     }
 }
 

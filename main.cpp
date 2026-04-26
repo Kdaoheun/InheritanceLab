@@ -34,39 +34,72 @@ int displayMenu() {
     std::cout << "3. Withdraw\n";
     std::cout << "4. Show Accounts\n";
     std::cout << "5. Update Account Holder Name\n";
+    std::cout << "6. Calculate Interest\n";
     std::cout << "0. Exit\n";
     std::cout << "Enter your choice: ";
+
     int choice;
     std::cin >> choice;
     return choice;
 }
 // Function to run the menu loop
 void runMenu(std::vector<std::unique_ptr<BankAccount>>& accounts ) {
+
     int choice; //The menu selection
+
     do {
         //Get a menu selection
         choice = displayMenu();
         //Carry out the menu selection (should call functions)
         switch (choice) {
             case 1: {
-                std::cout << "Add Account\n";
+                std::cout << "Add Account: 1.Checking 2.Savings\n";
+                int accountType;
+                std::cin >> accountType;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-                BankAccount Naccount = BankAccount::createAccountFromInput();
+                std::string accNum, accHolderName;
+                double bal;
 
-                bool notnew = false;
-                for (int i = 0; i < accounts.size(); ++i) {
-                    if (accounts.at(i).getAccountNumber() == Naccount.getAccountNumber()) {
-                        notnew = true;
+                std::cout << "Enter account Number: ";
+                std::cin >> accNum;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+                std::cout << "Enter account Holder Name: ";
+                std::getline(std::cin, accHolderName);
+
+                std::cout << "Enter account Balance: ";
+                std::cin >> bal;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+                bool accountExists = false;
+                for (auto& account : accounts) {
+                    if (account->getAccountNumber() == accNum) {
+                        accountExists = true;
                         break;
                     }
                 }
-
-                if (notnew) {
-                    std::cout << "Account number already exists. Please choose a new account number" << std::endl;
+                if (accountExists) {
+                    std::cout << "Account already exists." << std::endl;
+                    break;
+                }
+                if (accountType == 1) {
+                    double transactionFee = 0.0;
+                    std::cout << "Enter transaction fee: ";
+                    std::cin >> transactionFee;
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    accounts.push_back(std::make_unique<CheckingAccount>(accNum, accHolderName, bal, transactionFee));
+                }
+                else if(accountType == 2) {
+                    double interestRate = 0.0;
+                    std::cout << "Enter interest rate (%): ";
+                    std::cin >> interestRate;
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    accounts.push_back(std::make_unique<SavingsAccount>(accNum, accHolderName, bal, interestRate));
+                    std::cout << "Account created successfully." << std::endl;
                 }
                 else {
-                    accounts.push_back(Naccount);
-                    std::cout << "Account created successfully." << std::endl;
+                    std::cout << "Invalid account type." << std::endl;
                 }
                 break;
             }
@@ -74,86 +107,118 @@ void runMenu(std::vector<std::unique_ptr<BankAccount>>& accounts ) {
                 std::string accNum;
                 double amount;
 
-                std::cout << "Deposit\n";
-
-                std::cout << "Enter account Number: ";
+                std::cout << "Account Number: ";
                 std::cin >> accNum;
 
-                bool found = false;
+                bool accountFound = false;
 
-                for (int i = 0; i < accounts.size(); ++i) {
-                    if (accounts.at(i)->getAccountNumber() == accNum) {
-                        found = true;
-                        std::cout << "Account number: " << accounts.at(i)->getAccountNumber() << std::endl;
-                        std::cout << "Account Holder Name: " << accounts.at(i)->getAccountHolderName() << std::endl;
+                for (auto& account : accounts) {
+                    if (account->getAccountNumber() == accNum) {
+                        accountFound = true;
+                        std::cout << "Account number: " << account->getAccountNumber() << std::endl;
+                        std::cout << "Account Holder Name: " << account->getAccountHolderName() << std::endl;
                         std::cout << "Enter deposit amount: ";
                         std::cin >> amount;
-                        accounts.at(i) += amount;
+                        account->deposit(amount);
+                        std::cout << "New account balance: " << account->getBalance() << std::endl;
+
                         break;
                     }
                 }
-                if (!found) {std::cout << "Account not found." << std::endl;}
+                if (!accountFound) {
+                    std::cout << "Account not found." << std::endl;
+                }
                 break;
             }
             case 3: {
                 std::string accNum;
                 double amount;
 
-                std::cout << "Withdraw\n";
-
-                std::cout << "Enter account Number: ";
+                std::cout << "Enter Account Number: ";
                 std::cin >> accNum;
 
-                bool found = false;
+                bool accountFound = false;
 
-                for (int i = 0; i < accounts.size(); ++i) {
-                    if (accounts.at(i)->getAccountNumber() == accNum) {
-                        found = true;
-                        std::cout << "Account number: " << accounts.at(i)->getAccountNumber() << std::endl;
-                        std::cout << "Account Holder Name: " << accounts.at(i)->getAccountHolderName() << std::endl;
+                for (auto& account : accounts) {
+                    if (account->getAccountNumber() == accNum) {
+                        accountFound = true;
+                        std::cout << "Account number: " << account->getAccountNumber() << std::endl;
+                        std::cout << "Account Holder Name: " << account->getAccountHolderName() << std::endl;
                         std::cout << "Enter withdraw amount: ";
                         std::cin >> amount;
-                        accounts.at(i) -= amount;
+                        account->withdraw(amount);
+                        std::cout << "New account balance: " << account->getBalance() << std::endl;
                         break;
                     }
                 }
-                if (!found) {std::cout << "Account not found." << std::endl;}
+                if (!accountFound) {
+                    std::cout << "Account not found." << std::endl;
+                }
                 break;
             }
             case 4: {
                 std::cout << "Show Accounts\n";
-                if (accounts.empty()) {
-                    std::cout << "No accounts exist." << std::endl;
+                for (const auto& account : accounts) {
+                    BankAccount::printAccount(*account);
                 }
-                else {
-                    for (int i = 0; i < accounts.size(); ++i) {
-                        BankAccount::printAccount(accounts.at(i));
-                    }
-                }
-                break;
+                    break;
             }
                 case 5: {
                 std::string accNum, accHolderName;
 
-                std::cout << "Update Account Holder Name\n";
-                std::cout << "Enter account Number: ";
+                std::cout << "Enter Account Number: ";
+                    std::cin >> accNum;
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+
+                    for (auto& account : accounts) {
+                        if (account->getAccountNumber() == accNum) {
+                            std::cout << "Enter new account holder name: ";
+                            std::getline(std::cin, accHolderName);
+                            account->setAccountHolderName(accHolderName);
+                            std::cout << "Account holder name updated successfully." << std::endl;
+                            break;
+                        }
+                    }
+                    break;
+            }
+                case 6: {
+                std::cout << "Calculate Interest\n";
+
+                std::string accNum;
+                std::cout << "Enter Account Number: ";
                 std::cin >> accNum;
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-                bool found = false;
+                bool accountFound = false;
 
-                for (int i = 0; i < accounts.size(); ++i) {
-                    if (accounts.at(i)->getAccountNumber() == accNum) {
-                        found = true;
-                        std::cout << "Enter new account holder name: ";
-                        std::getline(std::cin, accHolderName);
-                        accounts.at(i)->setAccountHolderName(accHolderName);
-                        std::cout << "Account holder name updated successfully." << std::endl;
+                for (auto& account : accounts) {
+                    if (account->getAccountNumber() == accNum) {
+                        accountFound = true;
+                        std::cout << "Account number: " << account->getAccountNumber() << std::endl;
+                        std::cout << "Account Holder Name: " << account->getAccountHolderName() << std::endl;
+                        std::cout << "Account Balance: " << account->getBalance() << std::endl;
+                        SavingsAccount* savingsAccount = dynamic_cast<SavingsAccount*>(account.get());
+
+                        if (savingsAccount != nullptr) {
+                            savingsAccount->calculateInterest();
+                            accountFound = true;
+                            std::cout << "Interest calculated and added to account balance." << std::endl;
+                            std::cout << "New account balance: " << savingsAccount->getBalance() << std::endl;
+                        }
+                        else {
+
+                            std::cout << "Account is not a savings account. Interest calculation not applicable." << std::endl;
+                        }
+                        break;
                     }
                 }
-                if (!found) {std::cout << "Account not found." << std::endl;}
+
+                if (!accountFound) {
+                    std::cout << "Account not found." << std::endl;
+                }
                 break;
             }
+
             case 0:
                 std::cout << "Exiting program.\n";
                 break;

@@ -5,7 +5,7 @@
 
 class BankAccount {
 public:
-    // Construct/Deconstruct
+
     BankAccount();
     BankAccount(std::string accNum,std::string Holder, double bal);
 
@@ -14,27 +14,25 @@ public:
 
     virtual ~BankAccount();
 
-    // Get/Set
-    std::string getAccountNumber() const {return accountNumber;};
-    std::string getAccountHolderName() const {return accountHolderName;};
-    double getBalance() const {return balance;};
 
-    void setAccountHolderName(const std::string &Holder) {accountHolderName = Holder;};
+    std::string getAccountNumber() const;
+    std::string getAccountHolderName() const;
+    double getBalance() const;
 
-    // Deposit/Withdraw
-    void deposit(double amount);
+    void setAccountHolderName(const std::string &Holder);
+
+
+    virtual void deposit(double amount);
     virtual void withdraw(double amount);
 
-    //Arithmetic Assignment Operators
     BankAccount& operator+=(double amount);
     BankAccount& operator-=(double amount);
 
-    //Comparison Operators
-    bool operator>(const BankAccount& other) const;
-    bool operator<(const BankAccount& other) const;
-    bool operator==(const BankAccount& other) const;
+    bool operator>(const BankAccount &other) const;
+    bool operator<(const BankAccount &other) const;
+    bool operator==(const BankAccount &) const;
 
-    //Static Utility Functions
+
     static void printAccount(const BankAccount& account);
     static BankAccount createAccountFromInput();
 

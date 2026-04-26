@@ -10,5 +10,5 @@ SavingsAccount::SavingsAccount(const std::string &accNum, const std::string &Hol
 void SavingsAccount::calculateInterest() {
     double interest = getBalance() * (interestRate / 100);
     deposit(interest);
-    std::cout << "Interest: $" << interest <<  "at a rate of " << interestRate << "%" << std::endl;
+    std::cout << "Interest: $" << interest <<  " at a rate of " << interestRate << "%" << std::endl;
 }
